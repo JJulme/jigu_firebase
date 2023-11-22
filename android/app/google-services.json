@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "945525674232",
+    "project_id": "fir-test-d7d6e",
+    "storage_bucket": "fir-test-d7d6e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:945525674232:android:e8bd608afda96415132b0d",
+        "android_client_info": {
+          "package_name": "com.example.jigu_firebase"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAyepXdaCliZF-XSwzbou24XdeSYNC_Ttw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
