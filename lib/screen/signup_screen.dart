@@ -11,14 +11,21 @@ class SignupScreen extends StatelessWidget {
       body: PageView(
         controller: controller,
         children: [
-          const Center(
-            child: Text("핸드폰 실명인증"),
-          ),
-          const Center(
-            child: Text("사업자 인증"),
-          ),
-          const Center(
-            child: Text("비밀번호 설정"),
+          Scaffold(
+            body: const Center(
+              child: Text("핸드폰 인증"),
+            ),
+            persistentFooterButtons: [
+              Container(
+                height: 60,
+                width: double.infinity,
+                color: Colors.blueAccent,
+                child: ElevatedButton(
+                  child: const Text("다 음"),
+                  onPressed: () {},
+                ),
+              ),
+            ],
           ),
           Scaffold(
             body: const Center(
