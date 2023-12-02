@@ -1,44 +1,52 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jigu_firebase/screen/signup_phone_screen.dart';
+import 'package:jigu_firebase/screen/unite_signup_screen.dart';
 // https://totally-developer.tistory.com/113
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
-
-  @override
-  State<LoginPage> createState() => _LoginPageState();
-}
-
-class _LoginPageState extends State<LoginPage> {
+class LoginPage extends StatelessWidget {
+  LoginPage({super.key});
   final _key = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _pwController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("사장님 로그인"),
-      ),
-      body: SingleChildScrollView(
-        child: Container(
-          margin: const EdgeInsets.all(15),
-          child: Center(
-            child: Form(
-              key: _key,
-              child: Column(
-                children: [
-                  emailInput(),
-                  const SizedBox(height: 15),
-                  passwordInput(),
-                  const SizedBox(height: 15),
-                  loginButton(),
-                  const SizedBox(height: 15),
-                  TextButton(
-                    onPressed: () => Get.toNamed("/signup"),
-                    child: const Text("회원가입"),
-                  ),
-                ],
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text("사장님 로그인"),
+        ),
+        body: SingleChildScrollView(
+          child: Container(
+            margin: const EdgeInsets.all(15),
+            child: Center(
+              child: Form(
+                key: _key,
+                child: Column(
+                  children: [
+                    emailInput(),
+                    const SizedBox(height: 15),
+                    passwordInput(),
+                    const SizedBox(height: 15),
+                    loginButton(),
+                    const SizedBox(height: 15),
+                    TextButton(
+                      onPressed: () => Get.toNamed("/signup"),
+                      child: const Text("이메일 회원가입"),
+                    ),
+                    TextButton(
+                      onPressed: () => Get.to(() => const SignupPhoneScreen()),
+                      child: const Text("휴대폰번호 회원가입"),
+                    ),
+                    TextButton(
+                      onPressed: () => Get.to(() => UniteSignupScreen()),
+                      child: const Text("이메일 전화번호 회원가입"),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -50,7 +58,6 @@ class _LoginPageState extends State<LoginPage> {
   TextFormField emailInput() {
     return TextFormField(
       controller: _emailController,
-      autofocus: true,
       validator: (value) {
         if (value!.isEmpty) {
           return "이메일을 입력해주세요.";
@@ -72,7 +79,6 @@ class _LoginPageState extends State<LoginPage> {
   TextFormField passwordInput() {
     return TextFormField(
       controller: _pwController,
-      autofocus: true,
       validator: (value) {
         if (value!.isEmpty) {
           return "비밀번호를 입력해주세요.";
@@ -105,8 +111,10 @@ class _LoginPageState extends State<LoginPage> {
               print("잘못된 이메일입니다.");
             } else if (e.code == "wrong-password") {
               print("이메일, 비밀번호가 다릅니다.");
+            } else if (e.code == "invalid-credential") {
+              print("아이디 또는 비밀번호가 일치하지 않습니다.");
             } else {
-              print(e.code);
+              print("false");
             }
           }
         }

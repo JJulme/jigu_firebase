@@ -40,6 +40,9 @@ dependencies:
   firebase_auth: ^4.14.0
   firebase_database: ^10.3.4
   cloud_firestore: ^4.13.1
+  scroll_date_picker: ^3.7.3
+  dio: ^5.4.0
+  intl: ^0.18.1
 
 dev_dependencies:
   flutter_test:

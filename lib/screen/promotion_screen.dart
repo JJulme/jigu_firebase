@@ -91,7 +91,7 @@ class PromotionScreen extends StatelessWidget {
           if (_key.currentState!.validate()) {
             final promotionPosts = db.collection("promotionPosts");
             final promotionPost = {
-              "userId": auth.currentUser!.uid,
+              "userId": userId,
               "dataTime": Timestamp.now(),
               "title": _titleController.text,
               "body": _bodyController.text,

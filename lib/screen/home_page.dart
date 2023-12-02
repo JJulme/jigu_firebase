@@ -8,24 +8,20 @@ import 'package:jigu_firebase/screen/mypromotion_list_screen2.dart';
 import 'package:jigu_firebase/screen/promotion_screen.dart';
 import 'package:jigu_firebase/screen/signup_screen.dart';
 
-class HomePage extends StatefulWidget {
+FirebaseAuth auth = FirebaseAuth.instance;
+FirebaseFirestore db = FirebaseFirestore.instance;
+String userId = auth.currentUser!.uid;
+
+class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
-
-FirebaseAuth auth = FirebaseAuth.instance;
-var db = FirebaseFirestore.instance;
-
-class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, AsyncSnapshot<User?> user) {
         if (!user.hasData) {
-          return const LoginPage();
+          return LoginPage();
         } else {
           return Scaffold(
             appBar: AppBar(
@@ -34,9 +30,7 @@ class _HomePageState extends State<HomePage> {
                 IconButton(
                   icon: const Icon(Icons.logout_outlined),
                   onPressed: () async {
-                    await FirebaseAuth.instance
-                        .signOut()
-                        .then((_) => Get.toNamed("/login"));
+                    await auth.signOut().then((_) => Get.toNamed("/login"));
                   },
                 ),
               ],
@@ -113,7 +107,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      Get.to(() => const SignupScreen());
+                      Get.to(() => SignupScreen());
                     },
                     child: const Text("회원가입"),
                   ),

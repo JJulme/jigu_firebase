@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jigu_firebase/screen/home_page.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -88,7 +89,7 @@ class _SignupPageState extends State<SignupPage> {
       onPressed: () async {
         if (_key.currentState!.validate()) {
           try {
-            final credential = await FirebaseAuth.instance
+            final credential = await auth
                 .createUserWithEmailAndPassword(
                     email: _emailController.text, password: _pwController.text)
                 .then((_) => Get.toNamed("/"));

@@ -9,7 +9,7 @@ class MypromotionListScreen extends StatelessWidget {
   MypromotionListScreen({super.key});
   final Future<QuerySnapshot<Map<String, dynamic>>> promotionList = db
       .collection("promotionPosts")
-      .where("userId", isEqualTo: auth.currentUser!.uid)
+      .where("userId", isEqualTo: userId)
       .orderBy("dataTime", descending: true)
       .get();
   // final Rx<Future<QuerySnapshot<Map<String, dynamic>>>> promotionList = db
