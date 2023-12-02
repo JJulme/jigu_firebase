@@ -1,8 +1,8 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:jigu_firebase/screen/home_screen2.dart';
 import 'firebase_options.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:jigu_firebase/screen/home_page.dart';
 import 'package:jigu_firebase/screen/login_page.dart';
 import 'package:jigu_firebase/screen/signup_page.dart';
 
@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
       title: "Flutter Demo",
       initialRoute: "/",
       getPages: [
-        GetPage(name: "/", page: () => const HomePage()),
+        GetPage(name: "/", page: () => HomeScreen2()),
         GetPage(name: "/login", page: () => LoginPage()),
         GetPage(name: "/signup", page: () => const SignupPage()),
       ],
