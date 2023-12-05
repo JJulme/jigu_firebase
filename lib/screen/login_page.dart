@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:jigu_firebase/screen/signup_phone_screen.dart';
 import 'package:jigu_firebase/screen/unite_signup_screen.dart';
 // https://totally-developer.tistory.com/113
 
@@ -33,14 +32,6 @@ class LoginPage extends StatelessWidget {
                     const SizedBox(height: 15),
                     loginButton(),
                     const SizedBox(height: 15),
-                    TextButton(
-                      onPressed: () => Get.toNamed("/signup"),
-                      child: const Text("이메일 회원가입"),
-                    ),
-                    TextButton(
-                      onPressed: () => Get.to(() => const SignupPhoneScreen()),
-                      child: const Text("휴대폰번호 회원가입"),
-                    ),
                     TextButton(
                       onPressed: () => Get.to(() => UniteSignupScreen()),
                       child: const Text("이메일 전화번호 회원가입"),
@@ -104,8 +95,10 @@ class LoginPage extends StatelessWidget {
           try {
             await FirebaseAuth.instance
                 .signInWithEmailAndPassword(
-                    email: _emailController.text, password: _pwController.text)
-                .then((_) => Get.toNamed("/"));
+                  email: _emailController.text,
+                  password: _pwController.text,
+                )
+                .then((_) => Get.offAndToNamed("/"));
           } on FirebaseAuthException catch (e) {
             if (e.code == "user-not-found") {
               print("잘못된 이메일입니다.");

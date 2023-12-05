@@ -8,8 +8,10 @@ import 'package:jigu_firebase/screen/mypromotion_list_screen2.dart';
 import 'package:jigu_firebase/screen/promotion_screen.dart';
 import 'package:jigu_firebase/screen/signup_screen.dart';
 
-FirebaseAuth auth = FirebaseAuth.instance;
+// db 접근은 로그인 페이지로 이동 해야함
 FirebaseFirestore db = FirebaseFirestore.instance;
+// 사용자의 정보는 로그인 후 부터 저장 해야함
+FirebaseAuth auth = FirebaseAuth.instance;
 String userId = auth.currentUser!.uid;
 
 class HomePage extends StatelessWidget {

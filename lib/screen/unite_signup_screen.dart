@@ -27,6 +27,7 @@ class UniteSignupScreen extends StatelessWidget {
   final TextEditingController _openingController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _pwController = TextEditingController();
+  final TextEditingController _pw2Controller = TextEditingController();
   // 전화번호 인증번호 발송시 생성되는 인증키
   late final String _verificationId;
   // 유저 로그인 키
@@ -41,7 +42,7 @@ class UniteSignupScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // 전화번호 로그인 상태관리 controller 등록
-    Get.put(PhoneSignupController());
+    Get.put(EmailSignupController());
     Get.put(PageCheckController());
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -52,11 +53,11 @@ class UniteSignupScreen extends StatelessWidget {
             // 회원가입 도중에 뒤로가기 누를 경우
             onPressed: () async {
               // 전화번호 인증을 했을 경우 (계정이 생성됨)
-              if (PhoneSignupController.to.signUpChecker.value) {
+              if (EmailSignupController.to.signUpChecker.value) {
                 // 회원탈퇴
                 await userCredential.user!.delete();
                 // Getx Controller로
-                PhoneSignupController.to.delete();
+                EmailSignupController.to.delete();
                 Get.back();
               } else {
                 Get.back();
@@ -76,9 +77,9 @@ class UniteSignupScreen extends StatelessWidget {
             // Page 2
             bizInfoPage(context),
             // Page 3
-            phoneSignupPage(context),
-            //Page 4
             emailSignupPage(context),
+            //Page 4
+            phoneSignupPage(context),
           ],
         ),
         // 화면 아래 고정되는 PageView 컨트롤 버튼
@@ -151,6 +152,7 @@ class UniteSignupScreen extends StatelessWidget {
                 onChanged: (value) async {
                   if (value.length == 10) {
                     bizIdCheck = await bizIdDoubleChecker(value);
+                    print(bizIdCheck);
                   } else {
                     bizIdCheck = false;
                   }
@@ -340,6 +342,7 @@ class UniteSignupScreen extends StatelessWidget {
                                       )),
                                   actions: [
                                     TextButton(
+                                      child: const Text("확인"),
                                       onPressed: () {
                                         Navigator.of(context).pop();
                                         _pageController.nextPage(
@@ -348,8 +351,13 @@ class UniteSignupScreen extends StatelessWidget {
                                           curve: Curves.easeIn,
                                         );
                                       },
-                                      child: const Text("확인"),
-                                    )
+                                    ),
+                                    TextButton(
+                                      child: const Text("취소"),
+                                      onPressed: () {
+                                        Get.back;
+                                      },
+                                    ),
                                   ],
                                 );
                               } else {
@@ -371,19 +379,20 @@ class UniteSignupScreen extends StatelessWidget {
     );
   }
 
-  // 전화번호 인증 페이지
-  Container phoneSignupPage(BuildContext context) {
+  // 이메일 인증 페이지
+  Container emailSignupPage(BuildContext context) {
     return Container(
       margin: const EdgeInsets.all(15),
       child: Form(
-        key: _phonePagekey,
+        key: _emailPagekey,
         child: Obx(
           () => Column(
             children: [
+              // 이메일 입력
               TextFormField(
-                enabled: !PhoneSignupController.to.signUpChecker.value,
-                controller: _phoneController,
-                keyboardType: TextInputType.number,
+                controller: _emailController,
+                keyboardType: TextInputType.emailAddress,
+                enabled: !EmailSignupController.to.signUpChecker.value,
                 style: const TextStyle(fontSize: 18),
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
@@ -391,7 +400,7 @@ class UniteSignupScreen extends StatelessWidget {
                     horizontal: 10,
                     vertical: 17,
                   ),
-                  hintText: "010 - 0000 - 0000",
+                  hintText: "abd@abc.com",
                   labelStyle: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
@@ -399,59 +408,17 @@ class UniteSignupScreen extends StatelessWidget {
                 ),
                 validator: (value) {
                   if (value!.isEmpty) {
-                    return "번호를 입력해주세요.";
+                    return "이메일을 입력해주세요.";
                   }
                   return null;
                 },
               ),
               const SizedBox(height: 10),
-              Container(
-                height: 55,
-                width: double.infinity,
-                clipBehavior: Clip.hardEdge,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: ElevatedButton(
-                  onPressed: PhoneSignupController.to.signUpChecker.value
-                      ? null
-                      : () async {
-                          if (_phoneController.text.isEmpty) {
-                            print("번호를 입력해주세요.");
-                          } else {
-                            await auth.verifyPhoneNumber(
-                              // timeout: const Duration(minutes: 1),
-                              phoneNumber:
-                                  "+82${_phoneController.text.substring(1)}",
-                              verificationCompleted: (phoneAuthCredential) {
-                                print("전송 성공!");
-                              },
-                              verificationFailed: (error) {
-                                print("전송 실패");
-                                print(error.code);
-                              },
-                              codeSent: (verificationId, forceResendingToken) {
-                                // 권한 아디디 설정
-                                _verificationId = verificationId;
-                                print("코드 전송");
-                              },
-                              codeAutoRetrievalTimeout: (verificationId) {
-                                print("시간초과");
-                              },
-                            );
-                          }
-                        },
-                  child: const Text(
-                    "인증번호 전송",
-                    style: TextStyle(fontSize: 20),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 10),
+              // 비밀번호 입력
               TextFormField(
-                enabled: !PhoneSignupController.to.signUpChecker.value,
-                controller: _smsCodeController,
-                keyboardType: TextInputType.number,
+                controller: _pwController,
+                keyboardType: TextInputType.visiblePassword,
+                enabled: !EmailSignupController.to.signUpChecker.value,
                 style: const TextStyle(fontSize: 18),
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
@@ -465,8 +432,43 @@ class UniteSignupScreen extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return "비밀번호를 입력해주세요.";
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 10),
+              // 비밀번호 확인 입력
+              TextFormField(
+                controller: _pw2Controller,
+                keyboardType: TextInputType.visiblePassword,
+                enabled: !EmailSignupController.to.signUpChecker.value,
+                style: const TextStyle(fontSize: 18),
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 17,
+                  ),
+                  hintText: "비밀번호 한번 더 입력해 주세요.",
+                  labelStyle: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return "비밀번호를 입력해주세요.";
+                  } else if (_pwController.text != _pw2Controller.text) {
+                    return "비밀번호가 다릅니다.";
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 10),
+              // 이메일 비밀번호 확인
               Container(
                 height: 55,
                 width: double.infinity,
@@ -475,31 +477,60 @@ class UniteSignupScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(30),
                 ),
                 child: ElevatedButton(
-                  onPressed: PhoneSignupController.to.signUpChecker.value
+                  onPressed: EmailSignupController.to.signUpChecker.value
                       ? null
                       : () async {
-                          final phoneCredential = PhoneAuthProvider.credential(
-                            verificationId: _verificationId,
-                            smsCode: _smsCodeController.text,
-                          );
-                          try {
-                            userCredential = await auth
-                                .signInWithCredential(phoneCredential);
-                            PhoneSignupController.to.signUp();
-                            print(PhoneSignupController.to.signUpChecker.value);
-                            FocusScope.of(context).unfocus();
-                            _pageController.nextPage(
-                              duration: const Duration(milliseconds: 300),
-                              curve: Curves.easeIn,
-                            );
-                          } on FirebaseAuthException catch (e) {
-                            if (e.code == "invalid-verification-code") {
-                              print("인증번호가 다릅니다.");
+                          FocusScope.of(context).unfocus();
+                          if (_emailPagekey.currentState!.validate()) {
+                            try {
+                              userCredential =
+                                  await auth.createUserWithEmailAndPassword(
+                                email: _emailController.text,
+                                password: _pwController.text,
+                              );
+                              EmailSignupController.to.signUp();
+                              _pageController.nextPage(
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeIn,
+                              );
+                              // var emailCredential = EmailAuthProvider.credential(
+                              //   email: _emailController.text,
+                              //   password: _pwController.text,
+                              // );
+                              // final userCredential = await auth.currentUser!
+                              //     .linkWithCredential(emailCredential)
+                              //     .then((value) {
+                              //   EmailSignupController.to.delete();
+                              //   var userBizInfo = {
+                              //     "bizName": bizInfo.bizName,
+                              //     "bizTrName": bizInfo.bizTrName,
+                              //     "bizId": bizInfo.bizId,
+                              //     "bizAddr": bizInfo.bizAddr,
+                              //   };
+                              //   var users =
+                              //       FirebaseFirestore.instance.collection("users");
+                              //   users
+                              //       .doc(FirebaseAuth.instance.currentUser!.uid)
+                              //       .set(userBizInfo);
+                              //   Get.toNamed("/");
+                              // });
+                            } on FirebaseAuthException catch (e) {
+                              if (e.code == "invalid-email") {
+                                Get.snackbar("error", "올바른 이메일 형식이 아닙니다.");
+                              } else if (e.code == "email-already-in-use") {
+                                Get.snackbar("error", "이미 존재하는 이메일");
+                              } else if (e.code == "weak-password") {
+                                Get.snackbar("error", "6자 이상의 비밀번호");
+                              } else {
+                                Get.snackbar("Error", e.code);
+                              }
+                            } catch (e) {
+                              Get.snackbar("error", "오류오류");
                             }
                           }
                         },
                   child: const Text(
-                    "인증번호 확인",
+                    "이메일, 비밀번호 확인",
                     style: TextStyle(fontSize: 20),
                   ),
                 ),
@@ -511,17 +542,19 @@ class UniteSignupScreen extends StatelessWidget {
     );
   }
 
-  // 이메일 인증 페이지
-  Container emailSignupPage(BuildContext context) {
+  // 전화번호 인증 페이지
+  Container phoneSignupPage(BuildContext context) {
     return Container(
       margin: const EdgeInsets.all(15),
       child: Form(
-        key: _emailPagekey,
+        key: _phonePagekey,
         child: Column(
           children: [
+            // 전화번호 입력
             TextFormField(
-              controller: _emailController,
-              keyboardType: TextInputType.emailAddress,
+              controller: _phoneController,
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               style: const TextStyle(fontSize: 18),
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
@@ -529,17 +562,69 @@ class UniteSignupScreen extends StatelessWidget {
                   horizontal: 10,
                   vertical: 17,
                 ),
-                hintText: "abd@abc.com",
+                hintText: "010 - 0000 - 0000",
                 labelStyle: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
                 ),
               ),
+              validator: (value) {
+                if (value!.isEmpty) {
+                  return "번호를 입력해주세요.";
+                }
+                return null;
+              },
             ),
             const SizedBox(height: 10),
+            // 인증번호 전송
+            Container(
+              height: 55,
+              width: double.infinity,
+              clipBehavior: Clip.hardEdge,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(30),
+              ),
+              child: ElevatedButton(
+                onPressed: () async {
+                  var phoneChecker =
+                      await phoneDoubleChecker(_phoneController.text);
+                  if (_phoneController.text.isEmpty) {
+                    Get.snackbar("Error", "전화번호를 입력해주세요.");
+                  } else if (phoneChecker) {
+                    Get.snackbar("Error", "이미 가입된 전화번호 입니다.");
+                  } else {
+                    await auth.verifyPhoneNumber(
+                      // timeout: const Duration(minutes: 1),
+                      phoneNumber: "+82${_phoneController.text.substring(1)}",
+                      verificationCompleted: (phoneAuthCredential) {
+                        print("전송 성공!");
+                      },
+                      verificationFailed: (error) {
+                        print("전송 실패");
+                        print(error.code);
+                      },
+                      codeSent: (verificationId, forceResendingToken) {
+                        // 권한 아디디 설정
+                        _verificationId = verificationId;
+                        print("코드 전송");
+                      },
+                      codeAutoRetrievalTimeout: (verificationId) {
+                        print("시간초과");
+                      },
+                    );
+                  }
+                },
+                child: const Text(
+                  "인증번호 전송",
+                  style: TextStyle(fontSize: 20),
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            // 인증번호 입력
             TextFormField(
-              controller: _pwController,
-              keyboardType: TextInputType.visiblePassword,
+              controller: _smsCodeController,
+              keyboardType: TextInputType.number,
               style: const TextStyle(fontSize: 18),
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
@@ -555,6 +640,7 @@ class UniteSignupScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 10),
+            // 인증번호 확인 버튼
             Container(
               height: 55,
               width: double.infinity,
@@ -564,43 +650,44 @@ class UniteSignupScreen extends StatelessWidget {
               ),
               child: ElevatedButton(
                 onPressed: () async {
-                  if (_emailPagekey.currentState!.validate()) {
-                    try {
-                      var emailCredential = EmailAuthProvider.credential(
-                        email: _emailController.text,
-                        password: _pwController.text,
-                      );
-                      final userCredential = await auth.currentUser!
-                          .linkWithCredential(emailCredential)
-                          .then((value) {
-                        PhoneSignupController.to.delete();
-                        var userBizInfo = {
-                          "bizName": bizInfo.bizName,
-                          "bizTrName": bizInfo.bizTrName,
-                          "bizId": bizInfo.bizId,
-                          "bizAddr": bizInfo.bizAddr,
-                        };
-                        var users =
-                            FirebaseFirestore.instance.collection("users");
-                        users
-                            .doc(FirebaseAuth.instance.currentUser!.uid)
-                            .set(userBizInfo);
-                        Get.toNamed("/");
-                      });
-                    } on FirebaseAuthException catch (e) {
-                      if (e.code == "weak-password") {
-                        print("6자 이상의 비밀번호를 설정해주세요.");
-                      } else if (e.code == "email-already-in-use") {
-                        print("이미 존재하는 이메일입니다.");
-                      }
-                    } catch (e) {
-                      print(e.toString());
-                      print("오류오류");
+                  FocusScope.of(context).unfocus();
+                  try {
+                    final phoneCredential = PhoneAuthProvider.credential(
+                      verificationId: _verificationId,
+                      smsCode: _smsCodeController.text,
+                    );
+
+                    final credential = await auth.currentUser!
+                        .linkWithCredential(phoneCredential)
+                        .then((value) {
+                      EmailSignupController.to.delete();
+                      var userBizInfo = {
+                        "email": _emailController.text,
+                        "phoneNum": _phoneController.text,
+                        "bizName": bizInfo.bizName,
+                        "bizTrName": bizInfo.bizTrName,
+                        "bizId": bizInfo.bizId,
+                        "bizAddr": bizInfo.bizAddr,
+                      };
+                      var users =
+                          FirebaseFirestore.instance.collection("users");
+                      users
+                          .doc(FirebaseAuth.instance.currentUser!.uid)
+                          .set(userBizInfo);
+                      Get.offAndToNamed("/");
+                    });
+                    // userCredential =
+                    //     await auth.signInWithCredential(phoneCredential);
+                  } on FirebaseAuthException catch (e) {
+                    if (e.code == "invalid-verification-code") {
+                      Get.snackbar("Error", "인증번호가 다릅니다.");
+                    } else {
+                      Get.snackbar("Error", e.code);
                     }
                   }
                 },
                 child: const Text(
-                  "이메일, 비밀번호 확인",
+                  "인증번호 확인",
                   style: TextStyle(fontSize: 20),
                 ),
               ),
@@ -688,10 +775,10 @@ class UniteSignupScreen extends StatelessWidget {
   }
 }
 
-// 전화번호로 생성된 아이디가 있는지 상태 기록하는 Controller
-class PhoneSignupController extends GetxController {
+// 이메일로 생성된 아이디가 있는지 상태 기록하는 Controller
+class EmailSignupController extends GetxController {
   // getter 생성해서 짧은 코드 가능
-  static PhoneSignupController get to => Get.find();
+  static EmailSignupController get to => Get.find();
   // 회원가입 유무를 true/false로 기록
   RxBool signUpChecker = false.obs;
   // 회원가입 했을 경우 true
@@ -716,16 +803,35 @@ class PageCheckController extends GetxController {
 }
 
 // 사업자등록번호 중복확인 함수
+// true 중복, false 중복없음
 Future<bool> bizIdDoubleChecker(String text) async {
   late List<dynamic> taxIdList;
   await db
       .collection("users")
-      .where("taxId", isEqualTo: text)
+      .where("bizId", isEqualTo: text)
       .get()
       .then((value) {
     taxIdList = value.docs;
   });
   if (taxIdList.isEmpty) {
+    return false;
+  } else {
+    return true;
+  }
+}
+
+// 전화번호 중복확인 함수
+// true 중복, false 중복없음
+Future<bool> phoneDoubleChecker(String text) async {
+  late List<dynamic> phoneChecker;
+  await db
+      .collection("users")
+      .where("phoneNum", isEqualTo: text)
+      .get()
+      .then((value) {
+    phoneChecker = value.docs;
+  });
+  if (phoneChecker.isEmpty) {
     return false;
   } else {
     return true;
