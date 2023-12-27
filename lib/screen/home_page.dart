@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jigu_firebase/screen/login_page.dart';
 import 'package:jigu_firebase/screen/mypromotion_list_screen.dart';
-import 'package:jigu_firebase/screen/mypromotion_list_screen2.dart';
 import 'package:jigu_firebase/screen/promotion_screen.dart';
 import 'package:jigu_firebase/screen/signup_screen.dart';
 
@@ -102,9 +101,7 @@ class HomePage extends StatelessWidget {
                     child: const Text("나의 홍보글 리스트"),
                   ),
                   ElevatedButton(
-                    onPressed: () {
-                      Get.to(() => MypromotionListScreen2());
-                    },
+                    onPressed: () {},
                     child: const Text("나의 홍보글 리스트2"),
                   ),
                   ElevatedButton(

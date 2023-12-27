@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:jigu_firebase/screen/home_page.dart';
+import 'package:jigu_firebase/model/sectors.dart';
 
 class SectorsSearchScreen extends StatelessWidget {
   SectorsSearchScreen({super.key});
 
-  final TextEditingController _sectorController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    Get.put(SectorController());
+    Get.put(SearchController());
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
@@ -18,7 +18,7 @@ class SectorsSearchScreen extends StatelessWidget {
           child: AppBar(
             title: SizedBox(
               child: TextField(
-                controller: _sectorController,
+                controller: _searchController,
                 style: const TextStyle(fontSize: 18),
                 decoration: const InputDecoration(
                   filled: true,
@@ -28,48 +28,61 @@ class SectorsSearchScreen extends StatelessWidget {
                     horizontal: 10,
                     vertical: 12,
                   ),
-                  hintText: "업종 설정",
+                  hintText: "검색어를 입력해주세요.",
                   labelStyle: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 onChanged: (value) {
-                  SectorController.to.changeSector(value);
+                  SearchController.to.changeSecrchText(value);
                 },
               ),
             ),
           ),
         ),
-        body: Obx(
-          () {
-            var result = serchSectorList(SectorController.to.sector.value);
-            return FutureBuilder(
-              future: result,
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return const Center(child: CircularProgressIndicator());
-                } else {
-                  return const SizedBox();
-                }
-              },
-            );
-          },
+        body: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Obx(
+                () {
+                  return resultContainer();
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
-}
 
-class SectorController extends GetxController {
-  static SectorController get to => Get.find();
-  RxString sector = "".obs;
-  void changeSector(String text) {
-    sector.value = text;
+  Widget resultContainer() {
+    if (SearchController.to.searchText.isEmpty) {
+      return const Center(child: Text("검색어를 입력해주세요"));
+    } else {
+      return Center(
+          child: serchSectorList(SearchController.to.searchText.value));
+    }
+  }
+
+  serchSectorList(String search) async {
+    var sectorsData = sectors;
+    for (String mainSector in sectorsData.keys) {
+      if (mainSector.contains(search)) {
+        print(sectorsData[mainSector]);
+        return Text(sectorsData[mainSector]);
+      } else {
+        return null;
+      }
+    }
   }
 }
 
-serchSectorList(String search) async {
-  var result = db.collection("sectors").doc(search);
-  return result;
+class SearchController extends GetxController {
+  static SearchController get to => Get.find();
+  RxString searchText = "".obs;
+  void changeSecrchText(String text) {
+    searchText.value = text;
+  }
 }

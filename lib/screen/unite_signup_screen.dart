@@ -7,12 +7,18 @@ import 'package:intl/intl.dart';
 import 'package:jigu_firebase/api/nts_businessman.dart';
 import 'package:jigu_firebase/model/bizinfo_model.dart';
 import 'package:jigu_firebase/screen/home_page.dart';
+import 'package:jigu_firebase/screen/mypage_screen.dart';
 import 'package:scroll_date_picker/scroll_date_picker.dart';
 
 //https://stackoverflow.com/questions/53424916/textfield-validation-in-flutter
 
 class UniteSignupScreen extends StatelessWidget {
   UniteSignupScreen({super.key});
+  // db 접근은 로그인 페이지로 이동 해야함
+  FirebaseAuth auth = FirebaseAuth.instance;
+  String userId = FirebaseAuth.instance.currentUser!.uid;
+  // 사용자의 정보는 로그인 후 부터 저장 해야함
+  FirebaseFirestore db = FirebaseFirestore.instance;
   // Page Controller
   final PageController _pageController = PageController();
   // Form Controller

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:jigu_firebase/screen/home_page.dart';
+import 'package:jigu_firebase/screen/mypromotion_create_screen.dart';
+import 'package:jigu_firebase/screen/mypromotion_list_screen.dart';
 
 class MypromotionDetailScreen extends StatelessWidget {
   MypromotionDetailScreen({super.key});
@@ -17,6 +20,9 @@ class MypromotionDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var dataTime = DateTime.parse(promotionData["dataTime"].toDate().toString())
+        .add(const Duration(hours: 9));
+    var createTime = DateFormat("yyyy/MM/dd [HH:mm]").format(dataTime);
     return Scaffold(
       appBar: AppBar(
         title: const Text("나의 홍보글"),
@@ -24,7 +30,15 @@ class MypromotionDetailScreen extends StatelessWidget {
           PopupMenuButton(
             itemBuilder: (context) {
               return [
-                const PopupMenuItem(child: Text("수정하기")),
+                PopupMenuItem(
+                  child: const Text("수정하기"),
+                  onTap: () {
+                    Get.to(() => MypromotionCreateScreen(), arguments: [
+                      promotionData["title"],
+                      promotionData["body"]
+                    ]);
+                  },
+                ),
                 deleteMenuItem(context),
               ];
             },
@@ -43,7 +57,15 @@ class MypromotionDetailScreen extends StatelessWidget {
                 style:
                     const TextStyle(fontSize: 25, fontWeight: FontWeight.w600),
               ),
-              const Divider(height: 20, color: Colors.black87),
+              const SizedBox(height: 13),
+              Text(
+                createTime,
+                style: const TextStyle(
+                  fontSize: 17,
+                  color: Colors.black54,
+                ),
+              ),
+              const SizedBox(height: 13),
               Text(
                 promotionData["body"],
                 style: const TextStyle(fontSize: 23),
@@ -87,6 +109,7 @@ class MypromotionDetailScreen extends StatelessWidget {
                                   child: const Text("확인"),
                                   onPressed: () {
                                     Navigator.of(context).pop();
+                                    Get.find<ListController>().onInit();
                                     Get.back();
                                   },
                                 )

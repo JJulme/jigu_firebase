@@ -1,10 +1,17 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:jigu_firebase/screen/home_screen2.dart';
 import 'package:jigu_firebase/screen/mypage_basicInfo_screen.dart';
+import 'package:jigu_firebase/screen/mypromotion_list_screen.dart';
 
 class MypageScreen extends StatelessWidget {
-  const MypageScreen({super.key});
+  MypageScreen({super.key});
+  // db 접근은 로그인 페이지로 이동 해야함
+  FirebaseAuth auth = FirebaseAuth.instance;
+  String userId = FirebaseAuth.instance.currentUser!.uid;
+  // 사용자의 정보는 로그인 후 부터 저장 해야함
+  FirebaseFirestore db = FirebaseFirestore.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -67,6 +74,10 @@ class MypageScreen extends StatelessWidget {
               mypageTab(
                 "매장 기본정보 설정",
                 MypageBasicInfoScreen(),
+              ),
+              mypageTab(
+                "홍보글 설정",
+                MypromotionListScreen(),
               ),
             ],
           )),

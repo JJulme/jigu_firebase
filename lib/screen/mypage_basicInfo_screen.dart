@@ -59,22 +59,23 @@ class MypageBasicInfoScreen extends StatelessWidget {
                   ),
                   const SizedBox(width: 12),
                   Flexible(
-                      child: TextFormField(
-                    readOnly: true,
-                    style: const TextStyle(fontSize: 18),
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      contentPadding: EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 17,
-                      ),
-                      hintText: "동네 설정",
-                      labelStyle: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
+                    child: TextFormField(
+                      readOnly: true,
+                      style: const TextStyle(fontSize: 18),
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 17,
+                        ),
+                        hintText: "동네 설정",
+                        labelStyle: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
-                  )),
+                  ),
                 ],
               )
             ],
