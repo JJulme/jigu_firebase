@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -51,10 +52,20 @@ class MypromotionPreviewScreen extends StatelessWidget {
               ),
             ),
             onPressed: () async {
-              var files = await assetEntity2File(imageList);
-              final mountainsRef =
-                  storageRef.child("promotions/$userId/ddd.jpg");
-              await mountainsRef.putFile(files[0]);
+              var img64List = [];
+              for (var image in imageList) {
+                var imgFile = await image.file;
+                img64List.add(File(imgFile.path).readAsBytesSync());
+              }
+              print(img64List[0].toString().length);
+              var base64Img = base64Encode(img64List[0]);
+              print(base64Img.length);
+              Get.defaultDialog(
+                  content: SizedBox(
+                height: 300,
+                width: 300,
+                child: Image.memory(base64Decode(base64Img)),
+              ));
             },
           ),
           // 게시하기 버튼
@@ -82,8 +93,11 @@ class MypromotionPreviewScreen extends StatelessWidget {
                         child: const Text("확인"),
                         onPressed: () {
                           Navigator.of(context).pop();
-                          Future<bool> posting =
-                              FsDb().postPromotion(title: title, body: body);
+                          Future<bool> posting = FsDb().postPromotion2(
+                            title: title,
+                            body: body,
+                            assetImages: imageList,
+                          );
                           showDialog(
                             context: context,
                             builder: (context) {

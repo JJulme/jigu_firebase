@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -7,9 +8,12 @@ import 'package:jigu_firebase/screen/mypromotion_list_screen.dart';
 
 class MypromotionDetailScreen extends StatelessWidget {
   MypromotionDetailScreen({super.key});
+
+  // 홍보글의 정보 받아옴
   final Map<String, dynamic> promotionData = Get.arguments[0];
   final String promotionId = Get.arguments[1];
 
+  // 홍보글을 삭제하는 것이 아닌 유저 이름만 바꿔서 못가져오게 함
   promotionDelete() async {
     await db
         .collection("promotionPosts")
@@ -20,9 +24,12 @@ class MypromotionDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var dataTime = DateTime.parse(promotionData["dataTime"].toDate().toString())
-        .add(const Duration(hours: 9));
-    var createTime = DateFormat("yyyy/MM/dd [HH:mm]").format(dataTime);
+    // TimeStamp 변환, 우리나라 시간으로 설정 +9H
+    DateTime dataTime =
+        DateTime.parse(promotionData["dataTime"].toDate().toString())
+            .add(const Duration(hours: 9));
+    // 보여지는 시간 형식 설정
+    String createTime = DateFormat("yyyy/MM/dd [HH:mm]").format(dataTime);
     return Scaffold(
       appBar: AppBar(
         title: const Text("나의 홍보글"),
@@ -52,12 +59,16 @@ class MypromotionDetailScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 10),
+              // 홍보글 제목
               Text(
                 promotionData["title"],
-                style:
-                    const TextStyle(fontSize: 25, fontWeight: FontWeight.w600),
+                style: const TextStyle(
+                  fontSize: 25,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               const SizedBox(height: 13),
+              // 홍보글 생성 시간
               Text(
                 createTime,
                 style: const TextStyle(
@@ -66,6 +77,10 @@ class MypromotionDetailScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 13),
+              // 홍보글 이미지
+              imageBox(),
+              const SizedBox(height: 13),
+              // 홍보글 내용
               Text(
                 promotionData["body"],
                 style: const TextStyle(fontSize: 23),
@@ -77,6 +92,7 @@ class MypromotionDetailScreen extends StatelessWidget {
     );
   }
 
+  // 홍보글을 삭제 해주는 다이얼로그
   PopupMenuItem<dynamic> deleteMenuItem(BuildContext context) {
     return PopupMenuItem(
       child: const Text("삭제하기"),
@@ -88,9 +104,11 @@ class MypromotionDetailScreen extends StatelessWidget {
               title: const Text("삭제 하시겠습니까?"),
               content: const Text("삭제된 내용은 복구되지 않습니다."),
               actions: [
+                // 삭제 버튼
                 TextButton(
                   child: const Text("삭제"),
                   onPressed: () {
+                    // 기존의 다이얼로그 닫고 새로운 다이얼로그 열기
                     Navigator.of(context).pop();
                     showDialog(
                       context: context,
@@ -98,17 +116,21 @@ class MypromotionDetailScreen extends StatelessWidget {
                         return FutureBuilder(
                           future: promotionDelete(),
                           builder: (context, snapshot) {
+                            // Future 값을 기다리는 중
                             if (!snapshot.hasData) {
                               return const Center(
                                   child: CircularProgressIndicator());
                             }
+                            // Future 값이 나왔을 때 - 삭제 실패 예외 추가 필요
                             return AlertDialog(
                               title: const Text("삭제 되었습니다."),
                               actions: [
                                 TextButton(
                                   child: const Text("확인"),
                                   onPressed: () {
+                                    // 다이얼로그와 홍보글 작성 화면 제거
                                     Navigator.of(context).pop();
+                                    // 홍보글 리스트 reload
                                     Get.find<ListController>().onInit();
                                     Get.back();
                                   },
@@ -121,6 +143,7 @@ class MypromotionDetailScreen extends StatelessWidget {
                     );
                   },
                 ),
+                // 취소 버튼
                 TextButton(
                   child: const Text("취소"),
                   onPressed: () {
@@ -133,5 +156,21 @@ class MypromotionDetailScreen extends StatelessWidget {
         );
       },
     );
+  }
+
+  // 홍보글의 이미지를 보여줌
+  Widget imageBox() {
+    // 홍보글의 이미지가 없을 경우
+    if (promotionData["images"].isEmpty) {
+      return const SizedBox();
+    }
+    // 홍보글의 이미지가 있을 경우
+    else {
+      return Column(
+        children: [
+          for (var i in promotionData["images"]) Image.memory(base64Decode(i))
+        ],
+      );
+    }
   }
 }
