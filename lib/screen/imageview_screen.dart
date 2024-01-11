@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:photo_manager/photo_manager.dart';
@@ -37,7 +39,7 @@ class ImageviewScreen extends StatelessWidget {
           },
           builder: (context, index) {
             return PhotoViewGalleryPageOptions(
-              imageProvider: AssetEntityImageProvider(imageList[index]),
+              imageProvider: imageProviderCustum(index),
               minScale: PhotoViewComputedScale.contained,
               maxScale: PhotoViewComputedScale.covered * 1.8,
             );
@@ -45,6 +47,15 @@ class ImageviewScreen extends StatelessWidget {
         ),
       )),
     );
+  }
+
+  ImageProvider<Object> imageProviderCustum(int index) {
+    if (imageList[0].runtimeType == String) {
+      Image img = Image.memory(base64Decode(imageList[index]));
+      return img.image;
+    } else {
+      return AssetEntityImageProvider(imageList[index]);
+    }
   }
 }
 

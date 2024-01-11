@@ -3,8 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:jigu_firebase/screen/home_page.dart';
+import 'package:jigu_firebase/screen/imageview_screen.dart';
 import 'package:jigu_firebase/screen/mypromotion_create_screen.dart';
 import 'package:jigu_firebase/screen/mypromotion_list_screen.dart';
+import 'package:photo_view/photo_view_gallery.dart';
+
+//https://stackoverflow.com/questions/57613017/flutter-horizontal-list-view-dot-indicator
 
 class MypromotionDetailScreen extends StatelessWidget {
   MypromotionDetailScreen({super.key});
@@ -24,6 +28,7 @@ class MypromotionDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Get.put(IndicatorController());
     // TimeStamp 변환, 우리나라 시간으로 설정 +9H
     DateTime dataTime =
         DateTime.parse(promotionData["dataTime"].toDate().toString())
@@ -78,7 +83,14 @@ class MypromotionDetailScreen extends StatelessWidget {
               ),
               const SizedBox(height: 13),
               // 홍보글 이미지
-              imageBox(),
+              Stack(
+                alignment: Alignment.bottomCenter,
+                children: [
+                  imageBox(),
+                  // 이미지 인디케이터
+                  imgIndicator(),
+                ],
+              ),
               const SizedBox(height: 13),
               // 홍보글 내용
               Text(
@@ -160,17 +172,77 @@ class MypromotionDetailScreen extends StatelessWidget {
 
   // 홍보글의 이미지를 보여줌
   Widget imageBox() {
-    // 홍보글의 이미지가 없을 경우
+    // 이미지가 없다면 아무것도 안보여줌
     if (promotionData["images"].isEmpty) {
       return const SizedBox();
     }
-    // 홍보글의 이미지가 있을 경우
+    // 이미지가 있다면 이미지 스크롤뷰 보여줌
     else {
-      return Column(
-        children: [
-          for (var i in promotionData["images"]) Image.memory(base64Decode(i))
-        ],
+      return SizedBox(
+        height: Get.width,
+        width: Get.width,
+        child: PhotoViewGallery.builder(
+          itemCount: promotionData["images"].length,
+          onPageChanged: (index) {
+            IndicatorController.to.changeIndex(index);
+          },
+          builder: (context, index) {
+            Image img = Image.memory(
+              base64Decode(promotionData["images"][index]),
+            );
+            return PhotoViewGalleryPageOptions.customChild(
+              onTapUp: (context, details, controllerValue) {
+                Get.to(
+                  () => ImageviewScreen(),
+                  arguments: [index, promotionData["images"]],
+                );
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                    image: DecorationImage(
+                  image: img.image,
+                  fit: BoxFit.cover,
+                )),
+              ),
+            );
+          },
+        ),
       );
     }
+  }
+
+  // 이미지 인디케이터
+  Widget imgIndicator() {
+    return SizedBox(
+      height: 50,
+      width: double.infinity,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: promotionData["images"].map<Widget>((image) {
+          int index = promotionData["images"].indexOf(image);
+          return Obx(
+            () => Container(
+              width: 10,
+              height: 10,
+              margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: IndicatorController.to.imgIndex.value == index
+                    ? const Color.fromRGBO(255, 255, 255, 1)
+                    : const Color.fromRGBO(255, 255, 255, 0.6),
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+}
+
+class IndicatorController extends GetxController {
+  static IndicatorController get to => Get.find();
+  RxInt imgIndex = 0.obs;
+  void changeIndex(int index) {
+    imgIndex.value = index;
   }
 }

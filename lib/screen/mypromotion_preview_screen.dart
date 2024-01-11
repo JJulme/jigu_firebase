@@ -32,13 +32,9 @@ class MypromotionPreviewScreen extends StatelessWidget {
   final List<dynamic> imageList = Get.arguments[2];
   // 이미지들의 경로를 가져옴
   late Future<dynamic> imageFiles;
-  // API post 결과 가져옴
-  late Future<bool> okEdit;
 
   @override
   Widget build(BuildContext context) {
-    // 이미지 너비 = 디바이스 너비 - 30
-    final imgWeight = MediaQuery.of(context).size.width - 30;
     return Scaffold(
       appBar: AppBar(
         actions: [
@@ -149,6 +145,7 @@ class MypromotionPreviewScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // 홍보글 제목
               Text(
                 title,
                 style: const TextStyle(
@@ -160,6 +157,7 @@ class MypromotionPreviewScreen extends StatelessWidget {
                 height: 20,
                 color: null,
               ),
+              // 이미지 보여줌
               ListView.builder(
                 itemCount: imageList.length,
                 shrinkWrap: true,
@@ -167,11 +165,15 @@ class MypromotionPreviewScreen extends StatelessWidget {
                 itemBuilder: (context, index) {
                   return InkWell(
                     onTap: () {
-                      Get.to(ImageviewScreen(), arguments: [index, imageList]);
+                      print(imageList);
+                      Get.to(
+                        () => ImageviewScreen(),
+                        arguments: [index, imageList],
+                      );
                     },
                     child: Container(
-                      height: imgWeight / 2,
-                      width: imgWeight,
+                      height: Get.width / 2,
+                      width: Get.width,
                       margin: const EdgeInsets.symmetric(vertical: 5),
                       clipBehavior: Clip.hardEdge,
                       decoration:
@@ -191,6 +193,7 @@ class MypromotionPreviewScreen extends StatelessWidget {
                       height: 20,
                       color: null,
                     ),
+              // 홍보글 본문 내용
               Text(
                 body,
                 style: const TextStyle(
@@ -201,6 +204,7 @@ class MypromotionPreviewScreen extends StatelessWidget {
                 height: 30,
                 color: null,
               ),
+              // 사용자 정보 샘플
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

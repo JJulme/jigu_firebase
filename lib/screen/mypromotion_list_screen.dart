@@ -121,6 +121,7 @@ class MypromotionListScreen extends StatelessWidget {
                       maxLines: 3,
                     ),
                   ),
+                  const SizedBox(height: 5),
                   // 홍보글 이미지
                   mypromotionImage(index),
                 ],
